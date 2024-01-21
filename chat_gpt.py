@@ -9,7 +9,7 @@ from langchain.memory import ConversationBufferMemory
 
 from pydub import AudioSegment
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = ""
 
 
 class GptWrapper:
