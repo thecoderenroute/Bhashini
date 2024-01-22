@@ -9,11 +9,13 @@ from langchain.memory import ConversationBufferMemory
 
 from pydub import AudioSegment
 
-os.environ["OPENAI_API_KEY"] = ""
+from credential_reader import Credentials
 
 
 class GptWrapper:
     def __init__(self) -> None:
+        os.environ["OPENAI_API_KEY"] = Credentials().get_openai_key()
+
         self.llm = ChatOpenAI(
             temperature=0.7, model_name="gpt-3.5-turbo", max_tokens=512
         )
@@ -30,7 +32,7 @@ class GptWrapper:
 
 class BhashiniWrapper:
     def __init__(self) -> None:
-        self.headers = {}
+        self.headers = Credentials().get_bhashini_headers()
 
     def convert_response_audio(self, text, audioln, filename):
         api_endpoint = "https://tts.bhashini.ai/v1/synthesize"
@@ -39,7 +41,6 @@ class BhashiniWrapper:
         response = requests.post(api_endpoint, json=payload, headers=self.headers)
 
         if response.status_code == 200:
-            response_content = response.content
             audio = AudioSegment.from_file(io.BytesIO(response.content))
             audio.export(
                 filename,
@@ -54,6 +55,7 @@ class BhashiniWrapper:
         self,
         text,
         outputlan,
+        lan_code,
         filename: str = None,
     ):
         api_endpoint = "https://tts.bhashini.ai/v1/translate"
@@ -70,7 +72,7 @@ class BhashiniWrapper:
             response_content = response.content
             response_text = response_content.decode("utf-8")
             if filename:
-                self.convert_response_audio(response_text, "hi", filename)
+                self.convert_response_audio(response_text, lan_code, filename)
             return response_text
         else:
             print(f"Error: {response.status_code}, {response.text}")
